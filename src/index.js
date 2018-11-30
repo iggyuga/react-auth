@@ -1,12 +1,34 @@
-import React from 'react';
-import ReactDOM from 'react-dom';
-import './index.css';
-import App from './App';
-import * as serviceWorker from './serviceWorker';
+// Entry point to Application
 
-ReactDOM.render(<App />, document.getElementById('root'));
+//ES6
+import express from 'express';
+import http from 'http';
+import bodyParser from 'body-parser';
+import morgan from 'morgan';
+import mongoose from 'mongoose';
+const app = express();
+const router = require('../router');
 
-// If you want your app to work offline and load faster, you can change
-// unregister() to register() below. Note this comes with some pitfalls.
-// Learn more about service workers: http://bit.ly/CRA-PWA
-serviceWorker.unregister();
+// ES5
+// const express = require('express');
+// const http = require('http');
+// const bodyParser = require('body-parser');
+// const morgan = require('morgan');
+// const app = express();
+
+//DB setup
+const options = {
+    useNewUrlParser: true,
+}
+mongoose.connect('mongodb://localhost:auth/auth', options);
+
+// App
+app.use(morgan('combined'));
+app.use(bodyParser.json({ type: '*/*' }));
+router(app);
+
+// Server
+const port = process.env.PORT || 3090;
+const server = http.createServer(app);
+server.listen(port);
+console.log('Server listening on port ', port);
