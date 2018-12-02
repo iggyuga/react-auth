@@ -1,7 +1,7 @@
 // local definition of a user
 
-//import mongoose from 'mongoose';
-const mongoose = require('mongoose');
+import mongoose from 'mongoose';
+//const mongoose = require('mongoose');
 const Schema = mongoose.Schema;
 const bcrypt = require('bcrypt-nodejs');
 
@@ -22,7 +22,7 @@ userSchema.pre('save', function(next) {
         if (err) { return next(err); }
         
         // hash (encrypt) the passwor using the salt
-        bcrypt.hash(user.password, salt, null, function(err, hash) {
+        bcrypt.hash(user.password, salt, null, (err, hash) => {
             if (err) { return next(err); }
 
             // overwrite plain text password with encrypted password
@@ -33,9 +33,16 @@ userSchema.pre('save', function(next) {
     });
 });
 
+userSchema.methods.comparePassword = function(candidatePassword, callback) {
+    bcrypt.compare(candidatePassword, this.password, function(err, isMatch) {
+        if (err) { return callback(err); }
+
+        callback(null, isMatch);
+    })
+}
+
 // Create model class
-const ModelClass = mongoose.model('user', userSchema);
+var ModelClass = mongoose.model('user', userSchema);
 
 // Export the model
-module.exports = ModelClass
-//export default ModelClass;
+module.exports = ModelClass;
